@@ -7,7 +7,7 @@ export default function connectToDatabase() {
         dialect: MySqlDialect,
         database: 'test',
         user: 'root',
-        password: "taylorSwift@123",
+        password: password,
         host: 'localhost',
         port: 3306,
     });
