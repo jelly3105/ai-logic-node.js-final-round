@@ -5,6 +5,8 @@ import getUserByEmail from "../actions/getUserByEmail.js";
 import getHashedPassword from "../actions/getHashedPassword.js";
 import createUser from "../actions/createUser.js";
 import authorizeUSer from "../middleware/authorizeUSer.js";
+import User from "../models/User.js";
+import { where } from "sequelize";
 
 const routes = express.Router();
 const jwtPassword = "123456";
@@ -54,11 +56,14 @@ routes.post('/create-user', validateInput, authorizeUSer, async (req, res) => {
     return res.json(`User created successfully`)
 })
 
-routes.post('/delete-user', validateInput, async (req, res) => {
-    const { email, password } = req.body;
-
+routes.post('/delete-user', validateInput, authorizeUSer, async (req, res) => {
     try {
-        await createUser(email, password);
+        const {email} = (jwt.verify(token, jwtPassword));
+        const user = await getUserByEmail(email);
+        if(user.email === req.body.email) {
+            return res.json(`User can't delete it's own account!`)
+        }
+        await User.destroy({where: {email: req.body.email}});
     }catch(err) {
         return res.json(err.message);
     }
